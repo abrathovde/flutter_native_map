@@ -99,11 +99,11 @@ class GoogleProvider extends MapProvider {
 class MapView extends StatefulWidget {
   final LatLong initialLocation;
   final double inititialZoom;
-  final void Function() onTap;
-  final void Function(TapDownDetails) onTapDown;
-  final void Function(TapUpDetails) onTapUp;
-  final void Function() onLongPress;
-  final void Function() onLongPressUp;
+  final void Function(LatLong) onTap;
+  final void Function(LatLong, TapDownDetails) onTapDown;
+  final void Function(LatLong, TapUpDetails) onTapUp;
+  final void Function(LatLong) onLongPress;
+  final void Function(LatLong) onLongPressUp;
 
   MapView({
     Key key,
@@ -124,21 +124,22 @@ class MapViewState extends State<MapView> {
   static const double _TILE_SIZE = 256.0;
   LatLong _location = new LatLong(35.71, 51.41);
   double _zoom = 14.0;
-  void Function() _onTap;
-  void Function(TapDownDetails) _onTapDown;
-  void Function(TapUpDetails) _onTapUp;
-  void Function() _onLongPress;
-  void Function() _onLongPressUp;
+  void Function(LatLong) _onTapCallback;
+  void Function(LatLong, TapDownDetails) _onTapDownCallback;
+  void Function(LatLong, TapUpDetails) _onTapUpCallback;
+  void Function(LatLong) _onLongPressCallback;
+  void Function(LatLong) _onLongPressUpCallback;
   MapProvider provider = new GoogleProvider();
 
   @override
   void initState() {
     _location = widget.initialLocation;
     _zoom = widget.inititialZoom;
-    _onTap = widget.onTap;
-    _onTapDown = widget.onTapDown;
-    _onLongPress = widget.onLongPress;
-    _onLongPressUp = widget.onLongPressUp;
+    _onTapCallback = widget.onTap;
+    _onTapDownCallback = widget.onTapDown;
+    _onTapUpCallback = widget.onTapUp;
+    _onLongPressCallback = widget.onLongPress;
+    _onLongPressUpCallback = widget.onLongPressUp;
     super.initState();
   }
 
@@ -215,11 +216,11 @@ class MapViewState extends State<MapView> {
       onDoubleTap: _onDoubleTap,
       onScaleStart: _onScaleStart,
       onScaleUpdate: _onScaleUpdate,
-      onTap: _onTap,
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onLongPress: _onLongPress,
-      onLongPressUp: _onLongPressUp
+      onTap: _onTap(_location),
+      onTapDown: _onTapDown(_location),
+      onTapUp: _onTapUp(_location),
+      onLongPress: _onLongPress(_location),
+      onLongPressUp: _onLongPressUp(_location)
     );
     return gesture;
   }
@@ -255,6 +256,36 @@ class MapViewState extends State<MapView> {
       dragStart = now;
       drag(diff.dx, diff.dy);
     }
+  }
+
+  Function() _onTap(LatLong latLong) {
+    return () {
+      _onTapCallback(latLong);
+    };
+  }
+
+  Function(TapDownDetails) _onTapDown(LatLong latLong) {
+    return (TapDownDetails details) {
+      _onTapDownCallback(latLong, details);
+    };
+  }
+
+  Function(TapUpDetails) _onTapUp(LatLong latLong) {
+    return (TapUpDetails details) {
+      _onTapUpCallback(latLong, details);
+    };
+  }
+
+  Function() _onLongPress(LatLong latLong) {
+    return () {
+      _onLongPressCallback(latLong);
+    };
+  }
+
+  Function() _onLongPressUp(LatLong latLong) {
+    return () {
+      _onLongPressUpCallback(latLong);
+    };
   }
 
   void drag(double dx, double dy) {
