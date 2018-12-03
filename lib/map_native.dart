@@ -17,22 +17,6 @@ class LatLong {
   const LatLong(this.lat, this.long);
 }
 
-class MapGestures {
-  final void Function() onTap;
-  final void Function(TapDownDetails) onTapDown;
-  final void Function(TapUpDetails) onTapUp;
-  final void Function() onLongPress;
-  final void Function() onLongPressUp;
-
-  const MapGestures({
-    this.onTap,
-    this.onTapDown,
-    this.onTapUp,
-    this.onLongPress,
-    this.onLongPressUp
-  });
-}
-
 abstract class Projection {
   TileIndex fromLngLatToTileIndex(LatLong location);
   LatLong fromTileIndexToLngLat(TileIndex tile);
@@ -115,13 +99,21 @@ class GoogleProvider extends MapProvider {
 class MapView extends StatefulWidget {
   final LatLong initialLocation;
   final double inititialZoom;
-  final MapGestures mapGuestures;
+  final void Function() onTap;
+  final void Function(TapDownDetails) onTapDown;
+  final void Function(TapUpDetails) onTapUp;
+  final void Function() onLongPress;
+  final void Function() onLongPressUp;
 
   MapView({
     Key key,
     this.initialLocation: const LatLong(35.73, 51.40),
     this.inititialZoom: 14.0,
-    this.mapGuestures
+    this.onTap,
+    this.onTapDown,
+    this.onTapUp,
+    this.onLongPress,
+    this.onLongPressUp
   }) : super(key: key);
 
   @override
@@ -132,14 +124,21 @@ class MapViewState extends State<MapView> {
   static const double _TILE_SIZE = 256.0;
   LatLong _location = new LatLong(35.71, 51.41);
   double _zoom = 14.0;
-  MapGestures _mapGestures;
+  void Function() _onTap;
+  void Function(TapDownDetails) _onTapDown;
+  void Function(TapUpDetails) _onTapUp;
+  void Function() _onLongPress;
+  void Function() _onLongPressUp;
   MapProvider provider = new GoogleProvider();
 
   @override
   void initState() {
     _location = widget.initialLocation;
     _zoom = widget.inititialZoom;
-    _mapGestures = widget.mapGuestures;
+    _onTap = widget.onTap;
+    _onTapDown = widget.onTapDown;
+    _onLongPress = widget.onLongPress;
+    _onLongPressUp = widget.onLongPressUp;
     super.initState();
   }
 
@@ -216,11 +215,11 @@ class MapViewState extends State<MapView> {
       onDoubleTap: _onDoubleTap,
       onScaleStart: _onScaleStart,
       onScaleUpdate: _onScaleUpdate,
-      onTap: _mapGestures.onTap,
-      onTapDown: _mapGestures.onTapDown,
-      onTapUp: _mapGestures.onTapUp,
-      onLongPress: _mapGestures.onLongPress,
-      onLongPressUp: _mapGestures.onLongPressUp
+      onTap: _onTap,
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onLongPress: _onLongPress,
+      onLongPressUp: _onLongPressUp
     );
     return gesture;
   }
