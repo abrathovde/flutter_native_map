@@ -99,11 +99,11 @@ class GoogleProvider extends MapProvider {
 class MapView extends StatefulWidget {
   final LatLong initialLocation;
   final double inititialZoom;
-  final void Function(LatLong) onTap;
-  final void Function(LatLong, TapDownDetails) onTapDown;
-  final void Function(LatLong, TapUpDetails) onTapUp;
-  final void Function(LatLong) onLongPress;
-  final void Function(LatLong) onLongPressUp;
+  final void Function() onTap;
+  final void Function(TapDownDetails, LatLong) onTapDown;
+  final void Function(TapUpDetails, LatLong) onTapUp;
+  final void Function() onLongPress;
+  final void Function() onLongPressUp;
 
   MapView({
     Key key,
@@ -124,22 +124,22 @@ class MapViewState extends State<MapView> {
   static const double _TILE_SIZE = 256.0;
   LatLong _location = new LatLong(35.71, 51.41);
   double _zoom = 14.0;
-  void Function(LatLong) _onTapCallback;
-  void Function(LatLong, TapDownDetails) _onTapDownCallback;
-  void Function(LatLong, TapUpDetails) _onTapUpCallback;
-  void Function(LatLong) _onLongPressCallback;
-  void Function(LatLong) _onLongPressUpCallback;
+  void Function() _onTap;
+  void Function(TapDownDetails, LatLong) _onTapDownCallback;
+  void Function(TapUpDetails, LatLong) _onTapUpCallback;
+  void Function() _onLongPress;
+  void Function() _onLongPressUp;
   MapProvider provider = new GoogleProvider();
 
   @override
   void initState() {
     _location = widget.initialLocation;
     _zoom = widget.inititialZoom;
-    _onTapCallback = widget.onTap;
+    _onTap = widget.onTap;
     _onTapDownCallback = widget.onTapDown;
     _onTapUpCallback = widget.onTapUp;
-    _onLongPressCallback = widget.onLongPress;
-    _onLongPressUpCallback = widget.onLongPressUp;
+    _onLongPress = widget.onLongPress;
+    _onLongPressUp = widget.onLongPressUp;
     super.initState();
   }
 
@@ -216,11 +216,11 @@ class MapViewState extends State<MapView> {
       onDoubleTap: _onDoubleTap,
       onScaleStart: _onScaleStart,
       onScaleUpdate: _onScaleUpdate,
-      onTap: _onTap(_location),
-      onTapDown: _onTapDown(_location),
-      onTapUp: _onTapUp(_location),
-      onLongPress: _onLongPress(_location),
-      onLongPressUp: _onLongPressUp(_location)
+      onTap: _onTap,
+      onTapDown: _onTapDown(context),
+      onTapUp: _onTapUp(context),
+      onLongPress: _onLongPress,
+      onLongPressUp: _onLongPressUp
     );
     return gesture;
   }
@@ -258,34 +258,36 @@ class MapViewState extends State<MapView> {
     }
   }
 
-  Function() _onTap(LatLong latLong) {
-    return () {
-      _onTapCallback(latLong);
-    };
-  }
+  Function(TapDownDetails) _onTapDown(BuildContext context) {
+    if(_onTapDownCallback == null) {
+      return null;
+    }
 
-  Function(TapDownDetails) _onTapDown(LatLong latLong) {
     return (TapDownDetails details) {
-      _onTapDownCallback(latLong, details);
+      _onTapDownCallback(details, _getLatLngFromContext(context, details.globalPosition));
     };
   }
 
-  Function(TapUpDetails) _onTapUp(LatLong latLong) {
+  Function(TapUpDetails) _onTapUp(BuildContext context) {
+    if(_onTapUpCallback == null) {
+      return null;
+    }
     return (TapUpDetails details) {
-      _onTapUpCallback(latLong, details);
+      _onTapUpCallback(details, _getLatLngFromContext(context, details.globalPosition));
     };
   }
 
-  Function() _onLongPress(LatLong latLong) {
-    return () {
-      _onLongPressCallback(latLong);
-    };
-  }
+  LatLong _getLatLngFromContext(BuildContext context, Offset globalPosition) {
+      final RenderBox box = context.findRenderObject();
+      final Offset localOffset = box.globalToLocal(globalPosition);
+      var tileSize = _TILE_SIZE;
+      var scale = pow(2.0, _zoom);
+      final mon = EPSG4326.instance.fromLngLatToTileIndex(_location);
 
-  Function() _onLongPressUp(LatLong latLong) {
-    return () {
-      _onLongPressUpCallback(latLong);
-    };
+      mon.x -= (localOffset.dx / tileSize) / scale;
+      mon.y -= (localOffset.dy / tileSize) / scale;
+
+      return EPSG4326.instance.fromTileIndexToLngLat(mon);
   }
 
   void drag(double dx, double dy) {
