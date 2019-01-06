@@ -99,7 +99,7 @@ class GoogleProvider extends MapProvider {
 class MapView extends StatefulWidget {
   final LatLong initialLocation;
   final double inititialZoom;
-  final List<Marker> initialMarkers;
+  final List<Marker> markers;
   final void Function() onTap;
   final void Function(TapDownDetails) onTapDown;
   final void Function(TapUpDetails) onTapUp;
@@ -110,7 +110,7 @@ class MapView extends StatefulWidget {
     Key key,
     this.initialLocation: const LatLong(35.73, 51.40),
     this.inititialZoom: 14.0,
-    this.initialMarkers: const <Marker>[],
+    this.markers: const <Marker>[],
     this.onTap,
     this.onTapDown,
     this.onTapUp,
@@ -138,7 +138,7 @@ class MapViewState extends State<MapView> {
   void initState() {
     _location = widget.initialLocation;
     _zoom = widget.inititialZoom;
-    _markers = widget.initialMarkers;
+    _markers = widget.markers;
     _onTap = widget.onTap;
     _onTapDown = widget.onTapDown;
     _onLongPress = widget.onLongPress;
