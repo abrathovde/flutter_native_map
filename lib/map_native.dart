@@ -294,3 +294,17 @@ class MapViewState extends State<MapView> {
 }
 
 class Marker extends StatelessWidget {
+  final LatLong position;
+  final Icon icon;
+  
+  Marker(
+    {Key key,
+    @required this.position,
+    this.icon: const Icon(Icons.place)
+  })
+  : super(key: key);
+
+  Widget build(BuildContext context) {
+    return icon;
+  }
+}
