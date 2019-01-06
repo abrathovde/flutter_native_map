@@ -99,10 +99,12 @@ class GoogleProvider extends MapProvider {
 class MapView extends StatefulWidget {
   final LatLong initialLocation;
   final double inititialZoom;
+  final List<Marker> initialMarkers;
   MapView(
       {Key key,
       this.initialLocation: const LatLong(35.73, 51.40),
-      this.inititialZoom: 14.0})
+      this.inititialZoom: 14.0,
+      this.initialMarkers: const <Marker>[]})
       : super(key: key);
 
   @override
@@ -116,11 +118,13 @@ class MapViewState extends State<MapView> {
   LatLong _location = new LatLong(35.71, 51.41);
   double _zoom = 14.0;
   MapProvider provider = new GoogleProvider();
+  List<Marker> _markers = new List();
 
   @override
   void initState() {
     _location = widget.initialLocation;
     _zoom = widget.inititialZoom;
+    _markers = widget.initialMarkers;
     super.initState();
   }
 
@@ -188,6 +192,26 @@ class MapViewState extends State<MapView> {
         //Render(img, ox - 1, oy - 1, tileSize + 1, tileSize + 1);
 
       }
+    }
+
+    for(Marker marker in _markers) {
+      double iconSize = 24.0;
+      if (marker.icon.size != null) {
+        iconSize = marker.icon.size;
+      }
+      final tileIndex = EPSG4326.instance.fromLngLatToTileIndex(marker.position);
+      final mX = tileIndex.x * fixedPowZoom;
+      final mY = tileIndex.y * fixedPowZoom;
+      final ox = (mX * tileSize) + centerX - ttl.x - (iconSize / 2);
+      final oy = (mY * tileSize) + centerY - ttl.y - iconSize;
+
+      final child = new Positioned(
+          left: ox,
+          top: oy,
+          child: Container(
+            child: marker.icon));
+
+      children.add(child);
     }
 
     final stack = new Stack(children: children);
@@ -268,3 +292,5 @@ class MapViewState extends State<MapView> {
     });
   }
 }
+
+class Marker extends StatelessWidget {
