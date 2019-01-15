@@ -99,12 +99,11 @@ class GoogleProvider extends MapProvider {
 class MapView extends StatefulWidget {
   final LatLong initialLocation;
   final double inititialZoom;
-  final List<Marker> markers;
-  final void Function() onTap;
-  final void Function(TapDownDetails) onTapDown;
-  final void Function(TapUpDetails) onTapUp;
-  final void Function() onLongPress;
-  final void Function() onLongPressUp;
+  final void Function(LatLong) onTap;
+  final void Function(TapDownDetails, LatLong) onTapDown;
+  final void Function(TapUpDetails, LatLong) onTapUp;
+  final void Function(LatLong) onLongPress;
+  final void Function(LatLong) onLongPressUp;
 
   MapView({
     Key key,
@@ -127,11 +126,12 @@ class MapViewState extends State<MapView> {
   LatLong _location = new LatLong(35.71, 51.41);
   double _zoom = 14.0;
   List<Marker> _markers = new List();
-  void Function() _onTap;
-  void Function(TapDownDetails) _onTapDown;
-  void Function(TapUpDetails) _onTapUp;
-  void Function() _onLongPress;
-  void Function() _onLongPressUp;
+  LatLong _touchLocation;
+  void Function(LatLong) _onTapCallback;
+  void Function(TapDownDetails, LatLong) _onTapDownCallback;
+  void Function(TapUpDetails, LatLong) _onTapUpCallback;
+  void Function(LatLong) _onLongPressCallback;
+  void Function(LatLong) _onLongPressUpCallback;
   MapProvider provider = new GoogleProvider();
 
   @override
@@ -139,10 +139,11 @@ class MapViewState extends State<MapView> {
     _location = widget.initialLocation;
     _zoom = widget.inititialZoom;
     _markers = widget.markers;
-    _onTap = widget.onTap;
-    _onTapDown = widget.onTapDown;
-    _onLongPress = widget.onLongPress;
-    _onLongPressUp = widget.onLongPressUp;
+    _onTapCallback = widget.onTap;
+    _onTapDownCallback = widget.onTapDown;
+    _onTapUpCallback = widget.onTapUp;
+    _onLongPressCallback = widget.onLongPress;
+    _onLongPressUpCallback = widget.onLongPressUp;
     super.initState();
   }
 
@@ -239,11 +240,11 @@ class MapViewState extends State<MapView> {
       onDoubleTap: _onDoubleTap,
       onScaleStart: _onScaleStart,
       onScaleUpdate: _onScaleUpdate,
-      onTap: _onTap,
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onLongPress: _onLongPress,
-      onLongPressUp: _onLongPressUp
+      onTap: _onTap(),
+      onTapDown: _onTapDown(context),
+      onTapUp: _onTapUp(context),
+      onLongPress: _onLongPress(),
+      onLongPressUp: _onLongPressUp()
     );
     return gesture;
   }
@@ -279,6 +280,73 @@ class MapViewState extends State<MapView> {
       dragStart = now;
       drag(diff.dx, diff.dy);
     }
+  }
+
+  Function() _onTap() {
+    if(_onTapCallback == null) {
+      return null;
+    }
+    return () {
+      _onTapCallback(_touchLocation);
+    };
+  }
+
+  Function(TapDownDetails) _onTapDown(BuildContext context) {
+    if(_onTapDownCallback == null) {
+      return null;
+    }
+
+    return (TapDownDetails details) {
+      LatLong touchLocation = _getLatLngFromContext(context, details.globalPosition);
+      setState(() {
+        _touchLocation = touchLocation;
+      });
+      _onTapDownCallback(details, touchLocation);
+    };
+  }
+
+  Function(TapUpDetails) _onTapUp(BuildContext context) {
+    if(_onTapUpCallback == null) {
+      return null;
+    }
+    return (TapUpDetails details) {
+      LatLong touchLocation = _getLatLngFromContext(context, details.globalPosition);
+      setState(() {
+        _touchLocation = touchLocation;
+      });
+      _onTapUpCallback(details, touchLocation);
+    };
+  }
+
+  Function() _onLongPress() {
+    if(_onLongPressCallback == null) {
+      return null;
+    }
+    return () {
+      _onLongPressCallback(_touchLocation);
+    };
+  }
+
+  Function() _onLongPressUp() {
+    if(_onLongPressUpCallback == null) {
+      return null;
+    }
+    return () {
+      _onLongPressUpCallback(_touchLocation);
+    };
+  }
+
+  LatLong _getLatLngFromContext(BuildContext context, Offset globalPosition) {
+      final RenderBox box = context.findRenderObject();
+      final Offset localOffset = box.globalToLocal(globalPosition);
+      var tileSize = _TILE_SIZE;
+      var scale = pow(2.0, _zoom);
+      final mon = EPSG4326.instance.fromLngLatToTileIndex(_location);
+
+      mon.x -= (localOffset.dx / tileSize) / scale;
+      mon.y -= (localOffset.dy / tileSize) / scale;
+
+      return EPSG4326.instance.fromTileIndexToLngLat(mon);
   }
 
   void drag(double dx, double dy) {
