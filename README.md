@@ -15,6 +15,7 @@ Currently these basic features are implemented:
 - Drag panning
 - Pinch-zoom
 - Double click zoom
+- Static markers
 
 More features are yet to come.
 

@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
         child: new Stack(
       children: [
         new MapView(
-            initialLocation: const LatLong(35.68, 51.41),
+            initialLocation: const LatLong(37.386051, -122.083855),
             inititialZoom: 9.0),
         new Align(
             alignment: Alignment.bottomRight,
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         child: new Stack(
       children: [
         new MapView(
-            initialLocation: const LatLong(48.8566, 2.3522),
+            initialLocation: const LatLong(37.386051, -122.083855),
             inititialZoom: 9.0),
         new Align(
             alignment: Alignment.bottomRight,
