@@ -5,8 +5,10 @@
 .screenshots/
 .pub/
 .idea/
-
+android/
+ios/
 build/
+test/
 ios/.generated/
 ios/Flutter/Generated.xcconfig
 ios/Runner/GeneratedPluginRegistrant.*
