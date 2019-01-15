@@ -109,6 +109,7 @@ class MapView extends StatefulWidget {
     Key key,
     this.initialLocation: const LatLong(35.73, 51.40),
     this.inititialZoom: 14.0,
+    this.markers: const <Marker>[],
     this.onTap,
     this.onTapDown,
     this.onTapUp,
@@ -124,6 +125,7 @@ class MapViewState extends State<MapView> {
   static const double _TILE_SIZE = 256.0;
   LatLong _location = new LatLong(35.71, 51.41);
   double _zoom = 14.0;
+  List<Marker> _markers = new List();
   LatLong _touchLocation;
   void Function(LatLong) _onTapCallback;
   void Function(TapDownDetails, LatLong) _onTapDownCallback;
@@ -136,6 +138,7 @@ class MapViewState extends State<MapView> {
   void initState() {
     _location = widget.initialLocation;
     _zoom = widget.inititialZoom;
+    _markers = widget.markers;
     _onTapCallback = widget.onTap;
     _onTapDownCallback = widget.onTapDown;
     _onTapUpCallback = widget.onTapUp;
@@ -208,6 +211,26 @@ class MapViewState extends State<MapView> {
         //Render(img, ox - 1, oy - 1, tileSize + 1, tileSize + 1);
 
       }
+    }
+
+    for(Marker marker in _markers) {
+      double iconSize = 24.0;
+      if (marker.icon.size != null) {
+        iconSize = marker.icon.size;
+      }
+      final tileIndex = EPSG4326.instance.fromLngLatToTileIndex(marker.position);
+      final mX = tileIndex.x * fixedPowZoom;
+      final mY = tileIndex.y * fixedPowZoom;
+      final ox = (mX * tileSize) + centerX - ttl.x - (iconSize / 2);
+      final oy = (mY * tileSize) + centerY - ttl.y - iconSize;
+
+      final child = new Positioned(
+          left: ox,
+          top: oy,
+          child: Container(
+            child: marker.icon));
+
+      children.add(child);
     }
 
     final stack = new Stack(children: children);
@@ -358,5 +381,21 @@ class MapViewState extends State<MapView> {
     setState(() {
       _zoom = zoom;
     });
+  }
+}
+
+class Marker extends StatelessWidget {
+  final LatLong position;
+  final Icon icon;
+  
+  Marker(
+    {Key key,
+    @required this.position,
+    this.icon: const Icon(Icons.place)
+  })
+  : super(key: key);
+
+  Widget build(BuildContext context) {
+    return icon;
   }
 }
