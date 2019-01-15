@@ -5,7 +5,9 @@ A flutter package to view a map widget on mobile apps. Supports Android and iOS.
 
 ## Usage
 
+<!---
 To use this plugin, add `map_native` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/). Checkout the `./example` folder to get started.
+--->
 
 
 ### Features
