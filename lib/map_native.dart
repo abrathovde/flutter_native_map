@@ -106,17 +106,17 @@ class MapView extends StatefulWidget {
   final void Function(LatLong) onLongPress;
   final void Function(LatLong) onLongPressUp;
 
-  MapView({
-    Key key,
-    this.initialLocation: const LatLong(35.73, 51.40),
-    this.inititialZoom: 14.0,
-    this.markers: const <Marker>[],
-    this.onTap,
-    this.onTapDown,
-    this.onTapUp,
-    this.onLongPress,
-    this.onLongPressUp
-  }) : super(key: key);
+  MapView(
+      {Key key,
+      this.initialLocation: const LatLong(35.73, 51.40),
+      this.inititialZoom: 14.0,
+      this.markers: const <Marker>[],
+      this.onTap,
+      this.onTapDown,
+      this.onTapUp,
+      this.onLongPress,
+      this.onLongPressUp})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => new MapViewState();
@@ -214,22 +214,20 @@ class MapViewState extends State<MapView> {
       }
     }
 
-    for(Marker marker in _markers) {
+    for (Marker marker in _markers) {
       double iconSize = 24.0;
       if (marker.icon.size != null) {
         iconSize = marker.icon.size;
       }
-      final tileIndex = EPSG4326.instance.fromLngLatToTileIndex(marker.position);
+      final tileIndex =
+          EPSG4326.instance.fromLngLatToTileIndex(marker.position);
       final mX = tileIndex.x * fixedPowZoom;
       final mY = tileIndex.y * fixedPowZoom;
       final ox = (mX * tileSize) + centerX - ttl.x - (iconSize / 2);
       final oy = (mY * tileSize) + centerY - ttl.y - iconSize;
 
       final child = new Positioned(
-          left: ox,
-          top: oy,
-          child: Container(
-            child: marker.icon));
+          left: ox, top: oy, child: Container(child: marker.icon));
 
       children.add(child);
     }
@@ -237,16 +235,15 @@ class MapViewState extends State<MapView> {
     final stack = new Stack(children: children);
 
     final gesture = new GestureDetector(
-      child: stack,
-      onDoubleTap: _onDoubleTap,
-      onScaleStart: _onScaleStart,
-      onScaleUpdate: _onScaleUpdate,
-      onTap: _onTap(),
-      onTapDown: _onTapDown(context),
-      onTapUp: _onTapUp(context),
-      onLongPress: _onLongPress(),
-      onLongPressUp: _onLongPressUp()
-    );
+        child: stack,
+        onDoubleTap: _onDoubleTap,
+        onScaleStart: _onScaleStart,
+        onScaleUpdate: _onScaleUpdate,
+        onTap: _onTap(),
+        onTapDown: _onTapDown(context),
+        onTapUp: _onTapUp(context),
+        onLongPress: _onLongPress(),
+        onLongPressUp: _onLongPressUp());
     return gesture;
   }
 
@@ -284,7 +281,7 @@ class MapViewState extends State<MapView> {
   }
 
   Function() _onTap() {
-    if(_onTapCallback == null) {
+    if (_onTapCallback == null) {
       return null;
     }
     return () {
@@ -293,12 +290,13 @@ class MapViewState extends State<MapView> {
   }
 
   Function(TapDownDetails) _onTapDown(BuildContext context) {
-    if(_onTapDownCallback == null) {
+    if (_onTapDownCallback == null) {
       return null;
     }
 
     return (TapDownDetails details) {
-      LatLong touchLocation = _getLatLngFromContext(context, details.globalPosition);
+      LatLong touchLocation =
+          _getLatLngFromContext(context, details.globalPosition);
       setState(() {
         _touchLocation = touchLocation;
       });
@@ -307,11 +305,12 @@ class MapViewState extends State<MapView> {
   }
 
   Function(TapUpDetails) _onTapUp(BuildContext context) {
-    if(_onTapUpCallback == null) {
+    if (_onTapUpCallback == null) {
       return null;
     }
     return (TapUpDetails details) {
-      LatLong touchLocation = _getLatLngFromContext(context, details.globalPosition);
+      LatLong touchLocation =
+          _getLatLngFromContext(context, details.globalPosition);
       setState(() {
         _touchLocation = touchLocation;
       });
@@ -320,7 +319,7 @@ class MapViewState extends State<MapView> {
   }
 
   Function() _onLongPress() {
-    if(_onLongPressCallback == null) {
+    if (_onLongPressCallback == null) {
       return null;
     }
     return () {
@@ -329,7 +328,7 @@ class MapViewState extends State<MapView> {
   }
 
   Function() _onLongPressUp() {
-    if(_onLongPressUpCallback == null) {
+    if (_onLongPressUpCallback == null) {
       return null;
     }
     return () {
@@ -338,16 +337,16 @@ class MapViewState extends State<MapView> {
   }
 
   LatLong _getLatLngFromContext(BuildContext context, Offset globalPosition) {
-      final RenderBox box = context.findRenderObject();
-      final Offset localOffset = box.globalToLocal(globalPosition);
-      var tileSize = _TILE_SIZE;
-      var scale = pow(2.0, _zoom);
-      final mon = EPSG4326.instance.fromLngLatToTileIndex(_location);
+    final RenderBox box = context.findRenderObject();
+    final Offset localOffset = box.globalToLocal(globalPosition);
+    var tileSize = _TILE_SIZE;
+    var scale = pow(2.0, _zoom);
+    final mon = EPSG4326.instance.fromLngLatToTileIndex(_location);
 
-      mon.x -= (localOffset.dx / tileSize) / scale;
-      mon.y -= (localOffset.dy / tileSize) / scale;
+    mon.x -= (localOffset.dx / tileSize) / scale;
+    mon.y -= (localOffset.dy / tileSize) / scale;
 
-      return EPSG4326.instance.fromTileIndexToLngLat(mon);
+    return EPSG4326.instance.fromTileIndexToLngLat(mon);
   }
 
   void drag(double dx, double dy) {
@@ -388,13 +387,9 @@ class MapViewState extends State<MapView> {
 class Marker extends StatelessWidget {
   final LatLong position;
   final Icon icon;
-  
-  Marker(
-    {Key key,
-    @required this.position,
-    this.icon: const Icon(Icons.place)
-  })
-  : super(key: key);
+
+  Marker({Key key, @required this.position, this.icon: const Icon(Icons.place)})
+      : super(key: key);
 
   Widget build(BuildContext context) {
     return icon;
