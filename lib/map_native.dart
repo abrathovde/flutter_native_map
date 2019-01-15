@@ -99,6 +99,7 @@ class GoogleProvider extends MapProvider {
 class MapView extends StatefulWidget {
   final LatLong initialLocation;
   final double inititialZoom;
+  final List<Marker> markers;
   final void Function(LatLong) onTap;
   final void Function(TapDownDetails, LatLong) onTapDown;
   final void Function(TapUpDetails, LatLong) onTapUp;

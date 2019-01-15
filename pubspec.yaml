@@ -1,13 +1,14 @@
 name: map_native
 description: Map widget for Flutter written in Dart. Supports Android and iOS.
-version: 0.0.7
+version: 0.0.1
 authors:
     - Mahdi K. Fard <mahdi3466@gmail.com>
-homepage: https://github.com/xclud/flutter_native_map
+    - Andrew Brathovde
+homepage: https://github.com/abrathovde/flutter_native_map
 
 environment:
-  sdk: ">=1.19.0 <2.0.0"
-  flutter: "^0.3.2"
+  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+
 dependencies:
   flutter:
     sdk: flutter
@@ -17,7 +18,7 @@ dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-
+  uses-material-design: true
   # To add assets to your package, add an assets section, like this:
   # assets:
   #  - images/a_dot_burr.jpeg
